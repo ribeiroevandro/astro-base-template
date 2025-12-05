@@ -6,6 +6,9 @@ on:
       - main
       - master
 
+permissions:
+  contents: write
+
 jobs:
   setup:
     runs-on: ubuntu-latest
@@ -19,10 +22,12 @@ jobs:
       - name: Check if setup is needed
         id: check
         run: |
-          if grep -q "{{PROJECT_NAME}}" package.json 2>/dev/null || grep -q "{{PACKAGE_NAME}}" package.json 2>/dev/null; then
+          if grep -r "{{PROJECT_NAME}}" . 2>/dev/null || grep -r "{{PACKAGE_NAME}}" . 2>/dev/null; then
             echo "needs_setup=true" >> $GITHUB_OUTPUT
+            echo "✅ Placeholders encontrados, executando setup..."
           else
             echo "needs_setup=false" >> $GITHUB_OUTPUT
+            echo "ℹ️ Nenhum placeholder encontrado, pulando setup."
           fi
 
       - name: Setup repository
@@ -37,13 +42,17 @@ jobs:
           echo "📦 Repositório: $REPO_NAME"
           echo "📝 Nome do pacote: $PACKAGE_NAME"
 
-          # Substitui placeholders
+          # Substitui placeholders em todos os arquivos
           find . -type f \
             -not -path "./.git/*" \
             -not -path "./node_modules/*" \
             -not -path "./.github/workflows/setup.yml" \
-            -exec sed -i "s/{{PROJECT_NAME}}/$REPO_NAME/g" {} + \
-            -exec sed -i "s/{{PACKAGE_NAME}}/$PACKAGE_NAME/g" {} +
+            -print0 | while IFS= read -r -d '' file; do
+              if [ -f "$file" ]; then
+                sed -i "s/{{PROJECT_NAME}}/$REPO_NAME/g" "$file" 2>/dev/null || true
+                sed -i "s/{{PACKAGE_NAME}}/$PACKAGE_NAME/g" "$file" 2>/dev/null || true
+              fi
+            done
 
           echo "✅ Setup completo!"
 
@@ -57,5 +66,5 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add .
-          git commit -m "chore: initialize project" || echo "No changes"
+          git diff --staged --quiet || git commit -m "chore: initialize project with correct name"
           git push
