@@ -1,5 +1,5 @@
 {
-  "name": "project_name",
+  "name": "{{PROJECT_NAME}}",
   "type": "module",
   "version": "0.0.1",
   "scripts": {

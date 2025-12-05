@@ -1,0 +1,91 @@
+name: Setup New Repository
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  setup:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Check if setup is needed
+        id: check
+        run: |
+          if grep -q "{{PROJECT_NAME}}" package.json 2>/dev/null || grep -q "{{PACKAGE_NAME}}" package.json 2>/dev/null; then
+            echo "needs_setup=true" >> $GITHUB_OUTPUT
+          else
+            echo "needs_setup=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Run setup script
+        if: steps.check.outputs.needs_setup == 'true'
+        run: |
+          cat > setup.js << 'EOF'
+          const fs = require('fs');
+          const path = require('path');
+
+          const repoName = process.env.GITHUB_REPOSITORY.split('/')[1];
+          const packageName = repoName.toLowerCase().replace(/[^a-z0-9-]/g, '-');
+
+          console.log('📦 Repositório:', repoName);
+          console.log('📝 Nome do pacote:', packageName);
+
+          function replaceInFiles(dir) {
+            const files = fs.readdirSync(dir, { withFileTypes: true });
+
+            files.forEach(file => {
+              const fullPath = path.join(dir, file.name);
+
+              if (file.isDirectory() && !['node_modules', '.git'].includes(file.name)) {
+                replaceInFiles(fullPath);
+              } else if (file.isFile() && !fullPath.includes('.github/workflows/setup.yml')) {
+                try {
+                  let content = fs.readFileSync(fullPath, 'utf8');
+                  const original = content;
+
+                  content = content.replace(/\{\{PROJECT_NAME\}\}/g, repoName);
+                  content = content.replace(/\{\{PACKAGE_NAME\}\}/g, packageName);
+
+                  if (content !== original) {
+                    fs.writeFileSync(fullPath, content);
+                    console.log('✓', fullPath);
+                  }
+                } catch (err) {
+                  // Ignora arquivos binários
+                }
+              }
+            });
+          }
+
+          replaceInFiles('.');
+          console.log('✅ Setup completo!');
+          EOF
+
+          node setup.js
+
+      - name: Remove setup files
+        if: steps.check.outputs.needs_setup == 'true'
+        run: |
+          rm -f setup.js
+          rm -f .github/workflows/setup.yml
+
+      - name: Commit changes
+        if: steps.check.outputs.needs_setup == 'true'
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add .
+          git commit -m "chore: initialize project" || echo "No changes"
+          git push
