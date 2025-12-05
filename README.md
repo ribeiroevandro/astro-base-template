@@ -1,10 +1,10 @@
-# {{PACKAGE_NAME}}
+# astro-base-template
 
 Template minimalista em Astro para criar landing pages estáticas com rapidez. Inclui estrutura opinativa, tooling pronto e componentes placeholders para acelerar o kick-off de novos sites.
 
 ## ✨ Visão geral
 
-> `{{PACKAGE_NAME}}` prioriza simplicidade: uma única página inicial, layout global configurado, tokens de cor definidos e ferramentas de qualidade prontas. O objetivo é permitir que você foque no conteúdo e no design enquanto mantém uma base consistente para deploys rápidos.
+> `astro-base-template` prioriza simplicidade: uma única página inicial, layout global configurado, tokens de cor definidos e ferramentas de qualidade prontas. O objetivo é permitir que você foque no conteúdo e no design enquanto mantém uma base consistente para deploys rápidos.
 
 ## 🧱 Stack principal
 
