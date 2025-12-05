@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - main
+      - master
 
 jobs:
   setup:
@@ -15,11 +16,6 @@ jobs:
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '20'
-
       - name: Check if setup is needed
         id: check
         run: |
@@ -29,57 +25,31 @@ jobs:
             echo "needs_setup=false" >> $GITHUB_OUTPUT
           fi
 
-      - name: Run setup script
+      - name: Setup repository
         if: steps.check.outputs.needs_setup == 'true'
         run: |
-          cat > setup.js << 'EOF'
-          const fs = require('fs');
-          const path = require('path');
+          # Pega o nome do repositório
+          REPO_NAME="${GITHUB_REPOSITORY##*/}"
 
-          const repoName = process.env.GITHUB_REPOSITORY.split('/')[1];
-          const packageName = repoName.toLowerCase().replace(/[^a-z0-9-]/g, '-');
+          # Converte para nome válido do npm
+          PACKAGE_NAME=$(echo "$REPO_NAME" | tr '[:upper:]' '[:lower:]' | sed 's/[^a-z0-9-]/-/g')
 
-          console.log('📦 Repositório:', repoName);
-          console.log('📝 Nome do pacote:', packageName);
+          echo "📦 Repositório: $REPO_NAME"
+          echo "📝 Nome do pacote: $PACKAGE_NAME"
 
-          function replaceInFiles(dir) {
-            const files = fs.readdirSync(dir, { withFileTypes: true });
+          # Substitui placeholders
+          find . -type f \
+            -not -path "./.git/*" \
+            -not -path "./node_modules/*" \
+            -not -path "./.github/workflows/setup.yml" \
+            -exec sed -i "s/{{PROJECT_NAME}}/$REPO_NAME/g" {} + \
+            -exec sed -i "s/{{PACKAGE_NAME}}/$PACKAGE_NAME/g" {} +
 
-            files.forEach(file => {
-              const fullPath = path.join(dir, file.name);
+          echo "✅ Setup completo!"
 
-              if (file.isDirectory() && !['node_modules', '.git'].includes(file.name)) {
-                replaceInFiles(fullPath);
-              } else if (file.isFile() && !fullPath.includes('.github/workflows/setup.yml')) {
-                try {
-                  let content = fs.readFileSync(fullPath, 'utf8');
-                  const original = content;
-
-                  content = content.replace(/\{\{PROJECT_NAME\}\}/g, repoName);
-                  content = content.replace(/\{\{PACKAGE_NAME\}\}/g, packageName);
-
-                  if (content !== original) {
-                    fs.writeFileSync(fullPath, content);
-                    console.log('✓', fullPath);
-                  }
-                } catch (err) {
-                  // Ignora arquivos binários
-                }
-              }
-            });
-          }
-
-          replaceInFiles('.');
-          console.log('✅ Setup completo!');
-          EOF
-
-          node setup.js
-
-      - name: Remove setup files
+      - name: Remove setup workflow
         if: steps.check.outputs.needs_setup == 'true'
-        run: |
-          rm -f setup.js
-          rm -f .github/workflows/setup.yml
+        run: rm -f .github/workflows/setup.yml
 
       - name: Commit changes
         if: steps.check.outputs.needs_setup == 'true'

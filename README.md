@@ -1,10 +1,10 @@
-# project_name
+# {{PACKAGE_NAME}}
 
 Template minimalista em Astro para criar landing pages estáticas com rapidez. Inclui estrutura opinativa, tooling pronto e componentes placeholders para acelerar o kick-off de novos sites.
 
 ## ✨ Visão geral
 
-> `project_name` prioriza simplicidade: uma única página inicial, layout global configurado, tokens de cor definidos e ferramentas de qualidade prontas. O objetivo é permitir que você foque no conteúdo e no design enquanto mantém uma base consistente para deploys rápidos.
+> `{{PACKAGE_NAME}}` prioriza simplicidade: uma única página inicial, layout global configurado, tokens de cor definidos e ferramentas de qualidade prontas. O objetivo é permitir que você foque no conteúdo e no design enquanto mantém uma base consistente para deploys rápidos.
 
 ## 🧱 Stack principal
 
@@ -20,7 +20,7 @@ Template minimalista em Astro para criar landing pages estáticas com rapidez. I
 
 ## 🚀 Como usar este template
 
-1. Clique em **Use this template** no GitHub ou rode `npx degit ribeiroevandro/project_name meu-site`.
+1. Clique em **Use this template** no GitHub ou rode `npx degit ribeiroevandro/astro-base-template meu-site`.
 2. Instale as dependências:
    ```sh
    pnpm install
