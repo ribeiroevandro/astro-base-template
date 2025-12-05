@@ -1,0 +1,39 @@
+---
+import '~/styles/global.css'
+
+type Props = {
+  /**
+   * Título da página
+   */
+  title?: string
+}
+
+const { title } = Astro.props as Props
+const siteName = 'astro-base-template'
+const defaultTitle = 'astro-base-template - Conecte. Processe. Escale'
+const pageTitle = title ? `${title} - ${siteName}` : defaultTitle
+---
+
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta name="robots" content="noindex, nofollow" />
+    <meta name="googlebot" content="noindex, nofollow" />
+    <title>{pageTitle}</title>
+  </head>
+  <body>
+    <slot />
+  </body>
+</html>
+
+<style>
+  html,
+  body {
+    margin: 0;
+    width: 100%;
+    height: 100%;
+  }
+</style>
