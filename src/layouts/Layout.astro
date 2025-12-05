@@ -9,8 +9,8 @@ type Props = {
 }
 
 const { title } = Astro.props as Props
-const siteName = '{{PROJECT_NAME}}'
-const defaultTitle = '{{PROJECT_NAME}} - Conecte. Processe. Escale'
+const siteName = '{{PACKAGE_NAME}}'
+const defaultTitle = '{{PACKAGE_NAME}} - Conecte. Processe. Escale'
 const pageTitle = title ? `${title} - ${siteName}` : defaultTitle
 ---
 

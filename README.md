@@ -20,7 +20,7 @@ Template minimalista em Astro para criar landing pages estáticas com rapidez. I
 
 ## 🚀 Como usar este template
 
-1. Clique em **Use this template** no GitHub ou rode `npx degit ribeiroevandro/astro-base-template meu-site`.
+1. Clique em **Use this template** no GitHub ou rode `npx degit ribeiroevandro/{{PACKAGE_NAME}} meu-site`.
 2. Instale as dependências:
    ```sh
    pnpm install
